@@ -2,6 +2,8 @@ POPULATION_SIZE = 9
 NUMB_OF_ELITE_SCHEDULES = 1
 TOURNAMENT_SELECTION_SIZE = 3
 MUTATION_RATE = 0.1
+GLOBA = 1
+GLOB = 10000
 import sys
 import prettytable as prettytable
 import random as rnd
@@ -11,7 +13,7 @@ conn = sqlite.connect('class_schedule_4.db')
 c = conn.cursor()
 
 class Course:
-    def __init__(self, number, name, coursetype, section, instructors, maxNumbOfStudents, tpreference, dpreference, qpreference):
+    def __init__(self, number, name, coursetype, section, instructors, maxNumbOfStudents, tpreference, dpreference, qpreference, ccount, ConflictWith, ConflictValue, rpreference, teacher):
         self._number = number
         self._name = name
         self._coursetype = coursetype
@@ -21,6 +23,11 @@ class Course:
         self._dpreference = dpreference
         self._qpreference = qpreference
         self._tpreference = tpreference
+        self._ccount = ccount
+        self._ConflictValue = ConflictValue
+        self._ConflictWith = ConflictWith
+        self._rpreference = rpreference
+        self._teacher = teacher
         #print("helloC")
 
     def get_number(self):
@@ -49,6 +56,30 @@ class Course:
 
     def get_tpreference(self):
         return self._tpreference
+
+    def get_ccount(self):
+        return self._ccount
+
+    def set_ccount(self, c):
+        self._ccount = c
+
+    def get_ConflictWith(self):
+        return self._ConflictWith
+
+    def set_ConflictWith(self, c):
+        self._ConflictWith = c
+
+    def get_ConflictValue(self):
+        return self._ConflictValue
+
+    def set_ConflictValue(self, c):
+        self._ConflictValue = c
+
+    def get_rpreference(self):
+        return self._rpreference
+
+    def get_teacher(self):
+        return self._teacher
 
     def __str__(self):
         return self._name
@@ -232,7 +263,7 @@ class DBMgr:
         courses = c.fetchall()
         returnCourses = []
         for i in range (0, len(courses)):
-            returnCourses.append(Course(courses[i][0], courses[i][1], courses[i][2], courses[i][3], self.select_course_instructors(courses[i][0]) , courses[i][4], courses[i][5], courses[i][6], courses[i][7])) #self.select_course_instructors(courses)
+            returnCourses.append(Course(courses[i][0], courses[i][1], courses[i][2], courses[i][3], self.select_course_instructors(courses[i][0]) , courses[i][4], courses[i][5], courses[i][6], courses[i][7], courses[i][8], courses[i][9], courses[i][10], courses[i][11], courses[i][12])) #self.select_course_instructors(courses)
         return returnCourses
 
 
@@ -332,128 +363,182 @@ class Schedule:
                 self._classNumb += 1
                 #print(len(data.get_rooms()))
                 newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(0, len(data.get_meetingTimes()))])
-                newClass.set_room(data.get_rooms()[rnd.randrange(0, (len(data.get_rooms()) - 9))])
+                op = newClass.get_course().get_rpreference()
+                #print(op)
+                if(op == 'N/A'):
+                    newClass.set_room(data.get_rooms()[rnd.randrange(0, (len(data.get_rooms()) - 9))])
+                    #breakpoint()
+                else:
+                    for m in range(26):
+                        if ((data.get_rooms()[m].get_number()) == op):
+                            newClass.set_room(data.get_rooms()[m])
+                            #breakpoint()
+
                 newClass.set_instructor(courses[j].get_instructors()[rnd.randrange(0, len(courses[j].get_instructors()))])
 
                 if ((newClass.get_course().get_tpreference()) == 1 ):
                         if ((newClass.get_course().get_dpreference()) == 1 ):
                             if((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(0, (len(data.get_meetingTimes())) - 105)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(0, (len(data.get_meetingTimes())) - 126)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(5, (len(data.get_meetingTimes())) - 101)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(5, (len(data.get_meetingTimes())) - 122)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 2 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(9, (len(data.get_meetingTimes())) - 96)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(9, (len(data.get_meetingTimes())) - 117)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(14, (len(data.get_meetingTimes())) - 92)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(14, (len(data.get_meetingTimes())) - 113)])
                             #newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(8, (len(data.get_meetingTimes()))-8)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 3 ):
                             if((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(18, (len(data.get_meetingTimes())) - 87)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(18, (len(data.get_meetingTimes())) - 108)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(23, (len(data.get_meetingTimes())) - 83)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(23, (len(data.get_meetingTimes())) - 104)])
 
                         if ((newClass.get_course().get_dpreference()) == 4 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(51, (len(data.get_meetingTimes())) - 54)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(51, (len(data.get_meetingTimes())) - 75)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(56, (len(data.get_meetingTimes())) - 50)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(56, (len(data.get_meetingTimes())) - 71)])
+
+                        if ((newClass.get_course().get_dpreference()) == 5 ):
+                            if ((newClass.get_course().get_qpreference()) == 1):
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(95, (len(data.get_meetingTimes())) - 31)])
+                            else:
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(100, (len(data.get_meetingTimes())) - 27)])
+
+
+                        if ((newClass.get_course().get_dpreference()) == 6 ): #hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                            if((newClass.get_course().get_qpreference()) == 1):
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(122, (len(data.get_meetingTimes())) - 4)])
+                            else:
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(127, (len(data.get_meetingTimes())))])
 
                 if ((newClass.get_course().get_tpreference()) == 1.5 ):
                         if ((newClass.get_course().get_dpreference()) == 1 ):
                             if((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(27, (len(data.get_meetingTimes())) - 80)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(27, (len(data.get_meetingTimes())) - 101)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(30, (len(data.get_meetingTimes())) - 77)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(30, (len(data.get_meetingTimes())) - 98)])
 
                         if ((newClass.get_course().get_dpreference()) == 2 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(33, (len(data.get_meetingTimes())) - 74)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(33, (len(data.get_meetingTimes())) - 95)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(36, (len(data.get_meetingTimes())) - 71)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(36, (len(data.get_meetingTimes())) - 92)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 3 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(39, (len(data.get_meetingTimes())) - 68)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(39, (len(data.get_meetingTimes())) - 89)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(42, (len(data.get_meetingTimes())) - 65)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(42, (len(data.get_meetingTimes())) - 86)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 4 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(45, (len(data.get_meetingTimes())) - 62)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(45, (len(data.get_meetingTimes())) - 83)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(48, (len(data.get_meetingTimes())) - 59)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(48, (len(data.get_meetingTimes())) - 80)])
 
                         if ((newClass.get_course().get_dpreference()) == 5 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(104, (len(data.get_meetingTimes())) - 3)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(104, (len(data.get_meetingTimes())) - 24)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(107, len(data.get_meetingTimes()))])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(107, len(data.get_meetingTimes())) - 21])
 
                 if ((newClass.get_course().get_tpreference()) == 2 ):
                         if ((newClass.get_course().get_dpreference()) == 1 ):
                             if((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(60, (len(data.get_meetingTimes())) - 48)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(60, (len(data.get_meetingTimes())) - 69)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(62, (len(data.get_meetingTimes())) - 46)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(62, (len(data.get_meetingTimes())) - 67)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 2 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(64, (len(data.get_meetingTimes())) - 44)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(64, (len(data.get_meetingTimes())) - 65)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(66, (len(data.get_meetingTimes())) - 42)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(66, (len(data.get_meetingTimes())) - 63)])
                             #newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(8, (len(data.get_meetingTimes()))-8)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 3 ):
                             if((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(68, (len(data.get_meetingTimes())) - 40)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(68, (len(data.get_meetingTimes())) - 61)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(70, (len(data.get_meetingTimes())) - 38)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(70, (len(data.get_meetingTimes())) - 59)])
 
                         if ((newClass.get_course().get_dpreference()) == 4 ):
                             if ((newClass.get_course().get_qpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(72, (len(data.get_meetingTimes())) - 34)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(72, (len(data.get_meetingTimes())) - 57)])
                             else:
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(74, (len(data.get_meetingTimes())) - 32)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(74, (len(data.get_meetingTimes())) - 55)])
+
+                        if ((newClass.get_course().get_dpreference()) == 5 ):
+                            if ((newClass.get_course().get_qpreference()) == 1):
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(76, (len(data.get_meetingTimes())) - 53)])
+                            else:
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(78, (len(data.get_meetingTimes())) - 51)])
 
                 if ((newClass.get_course().get_tpreference()) == 3):
-                        newClass.set_room(data.get_rooms()[rnd.randrange(12, (len(data.get_rooms())))])
+                        newClass.set_room(data.get_rooms()[rnd.randrange(17, (len(data.get_rooms())))])
                         if ((newClass.get_course().get_dpreference()) == 1):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(80, (len(data.get_meetingTimes())) - 27)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(80, (len(data.get_meetingTimes())) - 48)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 2):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(83, (len(data.get_meetingTimes())) - 24)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(83, (len(data.get_meetingTimes())) - 45)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 3):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(86, (len(data.get_meetingTimes())) - 21)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(86, (len(data.get_meetingTimes())) - 42)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 4):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(89, (len(data.get_meetingTimes())) - 18)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(89, (len(data.get_meetingTimes())) - 39)])
 
 
                         if ((newClass.get_course().get_dpreference()) == 5):
-                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(92, (len(data.get_meetingTimes())) - 15)])
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(92, (len(data.get_meetingTimes())) - 36)])
 
+                if ((newClass.get_course().get_tpreference()) == 4 ):
+                        if ((newClass.get_course().get_dpreference()) == 1 ):
+                            if((newClass.get_course().get_qpreference()) == 1):
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(110, (len(data.get_meetingTimes())) - 19)])
+                            else:
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(112, (len(data.get_meetingTimes())) - 17)])
+
+
+                        if ((newClass.get_course().get_dpreference()) == 2 ):
+                            if ((newClass.get_course().get_qpreference()) == 1):
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(114, (len(data.get_meetingTimes())) - 15)])
+                            else:
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(116, (len(data.get_meetingTimes())) - 13)])
+                            #newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(8, (len(data.get_meetingTimes()))-8)])
+
+
+                        if ((newClass.get_course().get_dpreference()) == 3 ):
+                            if((newClass.get_course().get_qpreference()) == 1):
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(118, (len(data.get_meetingTimes())) - 11)])
+                            else:
+                                newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(120, (len(data.get_meetingTimes())) - 9)])
 
 
                 self._classes.append(newClass)
-                #print(newClass.get_meetingTime().get_id())
-                #c.execute("insert into schedule Values ('" + newClass.get_meetingTime().get_id() + "') ")
+
+
+                # create a table with first column course ids and second column its teacher and third its schedule
+                #update
+
         return self
 
     def calculate_fitness(self):
         self._numbOfConflicts = 0
+        w = "OK"
         classes = self.get_classes()
         for i in range(0, len(classes)):
             if (classes[i].get_room().get_seatingCapacity() < classes[i].get_course().get_maxNumbOfStudents()):
@@ -464,23 +549,161 @@ class Schedule:
                         if (classes[i].get_instructor().get_spacer() == 1):
                             if (classes[i].get_instructor().get_spacerc() == 0):
                                 if ((classes[i].get_meetingTime().get_matcher() - classes[j].get_meetingTime().get_matcher()) == 1 or (classes[i].get_meetingTime().get_matcher() - classes[j].get_meetingTime().get_matcher()) == -1):
+                                    #self._numbOfConflicts += 1
+                                    c.execute("select status from course_timing where CourseName = '" + str( classes[i].get_course().get_name()) + "' ")
+                                    # print(c.fetchall())
+                                    g = str(c.fetchall())
+
+                                    q = classes[i].get_course().get_ccount()
+                                    # print(q)
+
+                                    if ((g != "[(' A ',)]") and (q < 10000)):
+                                        # print("in where")
+                                        y = str(classes[i].get_course().get_name())
+                                        z1 = str(classes[i].get_meetingTime().get_time())
+                                        gg = "OK "
+                                        c.execute("update course_timing set status = '" + gg + "' where CourseName = '" + y + "'")
+                                        self._numbOfConflicts += 1
+                                        q = q + 1
+                                        classes[i].get_course().set_ccount(q)
+                                        # breakpoint()
+                                    elif (q == 10000):
+                                        q = q + 1
+                                        classes[i].get_course().set_ccount(q)
+                                        l = str(classes[j].get_course().get_name())
+                                        z = str(classes[i].get_meetingTime().get_time()) + " (Consecutive Classes Clash)"
+                                        classes[i].get_course().set_ConflictWith(l)
+                                        classes[i].get_course().set_ConflictValue(z)
+
+                                    elif (q < 10000):
+                                        # print("in wwwwwwwwwwwwwwhereeeeeeeeeeeeeee")
+                                        q = q + 1
+                                        classes[i].get_course().set_ccount(q)
+                                        self._numbOfConflicts += 1
+                                    else:
+                                        p = 1
+                                        # print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
+                                        # breakpoint()
                                     self._numbOfConflicts += 1
-                                    #print("space conflict")
-                                    #print(classes[i].get_meetingTime())
+
                     if (classes[i].get_meetingTime() == classes[j].get_meetingTime() and classes[i].get_id() != classes[j].get_id()):
                         if (classes[i].get_room() == classes[j].get_room()):
+                            c.execute("select status from course_timing where CourseName = '" + str(classes[i].get_course().get_name()) + "' ")
+                            #print(c.fetchall())
+                            g = str(c.fetchall())
+
+                            q = classes[i].get_course().get_ccount()
+                            #print(q)
+
+                            if ((g != "[(' A ',)]") and (q < 10000)):
+                                #print("in where")
+                                y = str(classes[i].get_course().get_name())
+                                z1 = str(classes[i].get_meetingTime().get_time())
+                                gg = "OK "
+                                c.execute("update course_timing set status = '" + gg + "' where CourseName = '" + y + "'")
+                                self._numbOfConflicts += 1
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                                #breakpoint()
+                            elif (q == 10000):
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                                l = str(classes[j].get_course().get_name())
+                                z = str(classes[i].get_meetingTime().get_time()) + " (Room Conflict)"
+                                classes[i].get_course().set_ConflictWith(l)
+                                classes[i].get_course().set_ConflictValue(z)
+
+                            elif (q < 10000):
+                                #print("in wwwwwwwwwwwwwwhereeeeeeeeeeeeeee")
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                                self._numbOfConflicts += 1
+                            else:
+                                p = 1
+                                #print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
+                                #breakpoint()
                             #print("room conflict")
                             #print(classes[i].get_room())
                             self._numbOfConflicts += 1
                         if (classes[i].get_instructor() == classes[j].get_instructor()):
-                            #print("instructor conflict")
-                            #print(classes[i].get_instructor())
-                            self._numbOfConflicts += 1
-                        if (classes[i].get_course().get_section() == classes[j].get_course().get_section()):
-                            #print("section conflict")
-                            #print(classes[i].get_course().get_section())
-                            self._numbOfConflicts += 1
+                            c.execute("select status from course_timing where CourseName = '" + str(classes[i].get_course().get_name()) + "' ")
+                            g = str(c.fetchall())
+                            q = classes[i].get_course().get_ccount()
+                            #print(q)
 
+                            if ((g != "[(' A ',)]") and (q < 10000)):
+                                #print("in there")
+                                y = str(classes[i].get_course().get_name())
+                                z1 = str(classes[i].get_meetingTime().get_time())
+                                gg = "OK "
+                                c.execute("update course_timing set status = '" + gg + "' where CourseName = '" + y + "'")
+                                self._numbOfConflicts += 1
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                            elif (q == 10000):
+                                q = q+1
+                                classes[i].get_course().set_ccount(q)
+                                l = str(classes[j].get_course().get_name())
+                                z = str(classes[i].get_meetingTime().get_time()) + " (Instructor Conflict)"
+                                classes[i].get_course().set_ConflictWith(l)
+                                classes[i].get_course().set_ConflictValue(z)
+
+                            elif (q < 10000):
+                                #print("in tttttttttttttttttthereeeeeeeeeeeeeee")
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                                self._numbOfConflicts += 1
+                            else:
+                                p = 1
+                                #print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
+
+                        if (classes[i].get_course().get_section() == classes[j].get_course().get_section()):
+                            c.execute("select status from course_timing where CourseName = '" + str(classes[i].get_course().get_name()) + "' ")
+                            g = str(c.fetchall())
+                            q = classes[i].get_course().get_ccount()
+                            #print(q)
+                            #if(classes[i].get_meetingTime() == last saved meeting
+
+                            if ((g != "[(' A ',)]") and (q < 10000)):
+                                # print("in there")
+                                y = str(classes[i].get_course().get_name())
+                                z1 = str(classes[i].get_meetingTime().get_time())
+                                gg = "OK "
+                                c.execute("update course_timing set status = '" + gg + "' where CourseName = '" + y + "'")
+                                self._numbOfConflicts += 1
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+
+                            elif ((q == 10000) ): #or (q == 1001) or (q == 1000)
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                                l = str(classes[j].get_course().get_name())
+                                z = str(classes[i].get_meetingTime().get_time())
+                                classes[i].get_course().set_ConflictWith(l)
+                                classes[i].get_course().set_ConflictValue(z)
+
+                            elif (q < 10000):
+                                #print("in hereeeeeeeeeeeeeee")
+                                q = q + 1
+                                classes[i].get_course().set_ccount(q)
+                                self._numbOfConflicts += 1
+                            else:
+                                p = 1
+                                #print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
+                                #breakpoint()
+
+            t = str(classes[i].get_meetingTime().get_time())
+            u = str(classes[i].get_instructor().get_name())
+            v = str(classes[i].get_room().get_number())
+            y = str(classes[i].get_course().get_name())
+            if((classes[i].get_course().get_ccount()) == 10001):
+                r1 = classes[i].get_course().get_ConflictWith()
+                z1 = classes[i].get_course().get_ConflictValue()
+                status = "Conflict Exist with " + r1 + "at Value: " + z1
+
+            else:
+                status = "No Conflicts!"
+            c.execute("update course_timing set timing = '" + t + "', teacher = '" + u + "', room = '" + v + "', status = '" + status + "' where CourseName = '" + y + "'") #, status = '" + w + "'
         #print(self._numbOfConflicts)
         return 1 / ((1.0 * self._numbOfConflicts + 1))
 
@@ -572,13 +795,12 @@ class DisplayMgr:
     def print_schedule_as_table(self, schedule):
         classes = schedule.get_classes()
 
-        table = prettytable.PrettyTable(['Class Number', 'Dept', 'Course (Code, Max No. of Students)', 'Room(Capacity)', 'Instructor(ID)', 'Time (ID)'])
+        table = prettytable.PrettyTable(['Class Number', 'Dept', 'Course ( Max No. of Students)', 'Room(Capacity)', 'Instructor(ID)', 'Time (ID)', 'P'])
         for i in range(0, len(classes)):
-            table.add_row([str(i+1), classes[i].get_dept().get_name(), classes[i].get_course().get_name() + "(" +
-                           str(classes[i].get_course().get_number()) + "," +str(classes[i].get_course().get_maxNumbOfStudents()) + ")",
+            table.add_row([str(i+1), classes[i].get_dept().get_name(), classes[i].get_course().get_name() + "(" + str(classes[i].get_course().get_maxNumbOfStudents()) + ")",
                            classes[i].get_room().get_number() + " (" +str(classes[i].get_room().get_seatingCapacity()) + ")",
                            classes[i].get_instructor().get_name() + " (" +str(classes[i].get_instructor().get_id()) + ")",
-                           classes[i].get_meetingTime().get_time() + " (" + str(classes[i].get_meetingTime().get_id()) + ")"])
+                           classes[i].get_meetingTime().get_time() + " (" + str(classes[i].get_meetingTime().get_id()) + ")" , classes[i].get_course().get_ccount()])
 
         print(table)
 
@@ -646,8 +868,11 @@ population.get_schedules().sort(key=lambda x: x.get_fitness(), reverse=True)  # 
 displayMgr.print_generation(population)  # Prints G0
 displayMgr.print_schedule_as_table(population.get_schedules()[0])  # Prints the fittest schedule in that generation
 geneticAlgorithm = GeneticAlgorithm()
-while (population.get_schedules()[0].get_fitness() != 1.0):
+while (population.get_schedules()[0].get_fitness() != 1.0 and GLOBA<GLOB):
+    if(population.get_schedules()[0].get_fitness() == 0.5):
+        print()
     generationNumber += 1
+    GLOBA = GLOBA+1
     print("\n> Generation # " + str(generationNumber))
     population = geneticAlgorithm.evolve(population)
     population.get_schedules().sort(key=lambda x: x.get_fitness(), reverse=True)
