@@ -214,8 +214,6 @@ class Class:
 
 class DBMgr:
     def __init__(self):
-        #print("hamzaaa")
-
         self._rooms = self.select_rooms()
         self._meetingTimes = self.select_meeting_times()
         self._instructors = self.select_instructors()
@@ -233,7 +231,6 @@ class DBMgr:
         for i in range(0, len(rooms)):
             returnRooms.append(Room(rooms[i][0], rooms[i][1], rooms[i][2]))
 
-        #print("In select rooms", returnRooms)
         return returnRooms
 
 
@@ -243,7 +240,7 @@ class DBMgr:
         returnMeetingTimes = []
         for i in range (0, len(meetingTimes)):
             returnMeetingTimes.append(MeetingTime(meetingTimes[i][0], meetingTimes[i][1], meetingTimes[i][2], meetingTimes[i][3]))
-        #print("In select meeting times", returnMeetingTimes)
+
         return returnMeetingTimes
 
 
@@ -253,7 +250,7 @@ class DBMgr:
         returnInstructors = []
         for i in range (0, len(instructors)):
             returnInstructors.append(Instructor(instructors[i][0], instructors[i][1], instructors[i][2], instructors[i][3]))
-        #print("In select instructors", returnInstructors)
+
         return returnInstructors
 
 
@@ -318,7 +315,6 @@ class DBMgr:
         return self._courses
 
     def get_depts(self):
-        #print("In deopcsadasdts")
         return self._depts
 
     def get_meetingTimes(self):
@@ -336,7 +332,6 @@ class Schedule:
         self._fitness = -1
         self._classNumb = 0
         self._isFitnessChanged = True
-        #print("helloS")
 
     def get_classes(self):
         self._isFitnessChanged = True
@@ -361,10 +356,8 @@ class Schedule:
                 newClass = Class(self._classNumb, depts[i], courses[j])
 
                 self._classNumb += 1
-                #print(len(data.get_rooms()))
                 newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(0, len(data.get_meetingTimes()))])
                 op = newClass.get_course().get_rpreference()
-                #print(op)
                 if(op == 'N/A'):
                     newClass.set_room(data.get_rooms()[rnd.randrange(0, (len(data.get_rooms()) - 9))])
                     #breakpoint()
@@ -530,10 +523,6 @@ class Schedule:
 
                 self._classes.append(newClass)
 
-
-                # create a table with first column course ids and second column its teacher and third its schedule
-                #update
-
         return self
 
     def calculate_fitness(self):
@@ -551,14 +540,12 @@ class Schedule:
                                 if ((classes[i].get_meetingTime().get_matcher() - classes[j].get_meetingTime().get_matcher()) == 1 or (classes[i].get_meetingTime().get_matcher() - classes[j].get_meetingTime().get_matcher()) == -1):
                                     #self._numbOfConflicts += 1
                                     c.execute("select status from course_timing where CourseName = '" + str( classes[i].get_course().get_name()) + "' ")
-                                    # print(c.fetchall())
                                     g = str(c.fetchall())
 
                                     q = classes[i].get_course().get_ccount()
                                     # print(q)
 
                                     if ((g != "[(' A ',)]") and (q < 10000)):
-                                        # print("in where")
                                         y = str(classes[i].get_course().get_name())
                                         z1 = str(classes[i].get_meetingTime().get_time())
                                         gg = "OK "
@@ -576,27 +563,21 @@ class Schedule:
                                         classes[i].get_course().set_ConflictValue(z)
 
                                     elif (q < 10000):
-                                        # print("in wwwwwwwwwwwwwwhereeeeeeeeeeeeeee")
                                         q = q + 1
                                         classes[i].get_course().set_ccount(q)
                                         self._numbOfConflicts += 1
                                     else:
                                         p = 1
-                                        # print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
-                                        # breakpoint()
                                     self._numbOfConflicts += 1
 
                     if (classes[i].get_meetingTime() == classes[j].get_meetingTime() and classes[i].get_id() != classes[j].get_id()):
                         if (classes[i].get_room() == classes[j].get_room()):
                             c.execute("select status from course_timing where CourseName = '" + str(classes[i].get_course().get_name()) + "' ")
-                            #print(c.fetchall())
                             g = str(c.fetchall())
 
                             q = classes[i].get_course().get_ccount()
-                            #print(q)
 
                             if ((g != "[(' A ',)]") and (q < 10000)):
-                                #print("in where")
                                 y = str(classes[i].get_course().get_name())
                                 z1 = str(classes[i].get_meetingTime().get_time())
                                 gg = "OK "
@@ -604,7 +585,6 @@ class Schedule:
                                 self._numbOfConflicts += 1
                                 q = q + 1
                                 classes[i].get_course().set_ccount(q)
-                                #breakpoint()
                             elif (q == 10000):
                                 q = q + 1
                                 classes[i].get_course().set_ccount(q)
@@ -614,25 +594,18 @@ class Schedule:
                                 classes[i].get_course().set_ConflictValue(z)
 
                             elif (q < 10000):
-                                #print("in wwwwwwwwwwwwwwhereeeeeeeeeeeeeee")
                                 q = q + 1
                                 classes[i].get_course().set_ccount(q)
                                 self._numbOfConflicts += 1
                             else:
                                 p = 1
-                                #print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
-                                #breakpoint()
-                            #print("room conflict")
-                            #print(classes[i].get_room())
                             self._numbOfConflicts += 1
                         if (classes[i].get_instructor() == classes[j].get_instructor()):
                             c.execute("select status from course_timing where CourseName = '" + str(classes[i].get_course().get_name()) + "' ")
                             g = str(c.fetchall())
                             q = classes[i].get_course().get_ccount()
-                            #print(q)
 
                             if ((g != "[(' A ',)]") and (q < 10000)):
-                                #print("in there")
                                 y = str(classes[i].get_course().get_name())
                                 z1 = str(classes[i].get_meetingTime().get_time())
                                 gg = "OK "
@@ -649,23 +622,18 @@ class Schedule:
                                 classes[i].get_course().set_ConflictValue(z)
 
                             elif (q < 10000):
-                                #print("in tttttttttttttttttthereeeeeeeeeeeeeee")
                                 q = q + 1
                                 classes[i].get_course().set_ccount(q)
                                 self._numbOfConflicts += 1
                             else:
                                 p = 1
-                                #print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
 
                         if (classes[i].get_course().get_section() == classes[j].get_course().get_section()):
                             c.execute("select status from course_timing where CourseName = '" + str(classes[i].get_course().get_name()) + "' ")
                             g = str(c.fetchall())
                             q = classes[i].get_course().get_ccount()
-                            #print(q)
-                            #if(classes[i].get_meetingTime() == last saved meeting
 
                             if ((g != "[(' A ',)]") and (q < 10000)):
-                                # print("in there")
                                 y = str(classes[i].get_course().get_name())
                                 z1 = str(classes[i].get_meetingTime().get_time())
                                 gg = "OK "
@@ -683,14 +651,11 @@ class Schedule:
                                 classes[i].get_course().set_ConflictValue(z)
 
                             elif (q < 10000):
-                                #print("in hereeeeeeeeeeeeeee")
                                 q = q + 1
                                 classes[i].get_course().set_ccount(q)
                                 self._numbOfConflicts += 1
                             else:
                                 p = 1
-                                #print("in pppppppppppppppppppppppppppppppppppppppppppppppppppp")
-                                #breakpoint()
 
             t = str(classes[i].get_meetingTime().get_time())
             u = str(classes[i].get_instructor().get_name())
@@ -718,7 +683,6 @@ class Schedule:
 class Population():
     def __init__(self, size):
         self._size = size
-        #print("helloP")
         self._data = data
         self._schedules = []
         for i in range(0, size):
