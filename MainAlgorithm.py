@@ -2,8 +2,8 @@ POPULATION_SIZE = 9
 NUMB_OF_ELITE_SCHEDULES = 1
 TOURNAMENT_SELECTION_SIZE = 3
 MUTATION_RATE = 0.1
-GLOBA = 1
-GLOB = 10000
+GLOBA = 1 #Generation Starting Number
+GLOB = 10000 #Generation Limit
 import sys
 import prettytable as prettytable
 import random as rnd
@@ -11,6 +11,7 @@ import sqlite3 as sqlite
 
 conn = sqlite.connect('class_schedule_4.db')
 c = conn.cursor()
+
 
 class Course:
     def __init__(self, number, name, coursetype, section, instructors, maxNumbOfStudents, tpreference, dpreference, qpreference, ccount, ConflictWith, ConflictValue, rpreference, teacher):
@@ -368,7 +369,9 @@ class Schedule:
                             #breakpoint()
 
                 newClass.set_instructor(courses[j].get_instructors()[rnd.randrange(0, len(courses[j].get_instructors()))])
-
+                
+                #Following Conditions below choose a random slot from the range of meeting times according to their soft constraints
+                
                 if ((newClass.get_course().get_tpreference()) == 1 ):
                         if ((newClass.get_course().get_dpreference()) == 1 ):
                             if((newClass.get_course().get_qpreference()) == 1):
@@ -404,7 +407,7 @@ class Schedule:
                                 newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(100, (len(data.get_meetingTimes())) - 27)])
 
 
-                        if ((newClass.get_course().get_dpreference()) == 6 ): #hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                        if ((newClass.get_course().get_dpreference()) == 6 ): 
                             if((newClass.get_course().get_qpreference()) == 1):
                                 newClass.set_meetingTime(data.get_meetingTimes()[rnd.randrange(122, (len(data.get_meetingTimes())) - 4)])
                             else:
@@ -543,7 +546,10 @@ class Schedule:
                                     g = str(c.fetchall())
 
                                     q = classes[i].get_course().get_ccount()
-                                    # print(q)
+                                    
+                                    # Following Conditions check whether according to the conflict limit described by the algorithm, any
+                                    # certain has surpassed that limit or not, if it has or the conflict the was not resolved due to any
+                                    # other issue, then mention that error(conflict)
 
                                     if ((g != "[(' A ',)]") and (q < 10000)):
                                         y = str(classes[i].get_course().get_name())
@@ -770,7 +776,7 @@ class DisplayMgr:
 
 
 class GeneticAlgorithm:
-    def evolve(self, population): #
+    def evolve(self, population): # A public function which in turn calls the stages(functions) below
         return self._mutate_population(self._crossover_population(population))
 
     def _crossover_population(self, pop): # Does crossover on all Schedules of the population
@@ -824,10 +830,6 @@ displayMgr.print_available_data()
 generationNumber = 0
 print("\n> Generation # " + str(generationNumber))
 population = Population(POPULATION_SIZE)
-
-# print(type(population.get_schedules().get_classes()))
-# print("absd")
-# classes[i].get_room().get_seatingCapacity() )
 population.get_schedules().sort(key=lambda x: x.get_fitness(), reverse=True)  # Sorts the schedule and population
 displayMgr.print_generation(population)  # Prints G0
 displayMgr.print_schedule_as_table(population.get_schedules()[0])  # Prints the fittest schedule in that generation
